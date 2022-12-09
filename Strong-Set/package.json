@@ -1,0 +1,30 @@
+{
+  "name": "strong-set",
+  "version": "0.0.1",
+  "description": "StrongSet, a more powerful and improved version of the set function",
+  "main": "index.js",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/pordarman/strong-set.git"
+  },
+  "exports": {
+    "require": "./index.js",
+    "node": "./index.js",
+    "default": "./index.mjs"
+  },
+  "keywords": [
+    "set",
+    "jsset",
+    "setjs",
+    "javascriptset",
+    "setjavascript",
+    "strongset",
+    "strong-set"
+  ],
+  "author": "Fearless Crazy",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/pordarman/strong-set/issues"
+  },
+  "homepage": "https://github.com/pordarman/strong-set#readme"
+}
