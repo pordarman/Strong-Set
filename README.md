@@ -1,8 +1,8 @@
 ## [![Alisa Logo](https://i.hizliresim.com/aug2sp9.png)](https://www.npmjs.com/package/strong-set/)
 
 
-[![Package Name](https://img.shields.io/badge/Package%20name-strong-set-red)](https://www.npmjs.com/package/strong-set/)
-[![Package size](https://img.shields.io/bundlephobia/min/strong-set?label=Package%20size)](https://www.npmjs.com/package/strong-set/)
+[![Package Name]([https://img.shields.io/badge/Package%20name-strong_set-red](https://img.shields.io/badge/Package%20name-alisa.array-red))](https://www.npmjs.com/package/strong-set/)
+[![Package size](https://img.shields.io/bundlejs/size/strong-set?label=Package%20size)](https://www.npmjs.com/package/strong-set/)
 [![Version](https://img.shields.io/npm/v/strong-set.svg?label=Package%20version)](https://www.npmjs.com/package/strong-set/)
 [![License](https://img.shields.io/npm/l/strong-set.svg?label=License)](https://www.npmjs.com/package/strong-set/)
 
