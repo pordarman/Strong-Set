@@ -1,19 +1,21 @@
+// @ts-check
+
 /**
  * Checks if the elements in two entered objects are all the same
- * @param {Object} object1 
- * @param {Object} object2 
+ * @param {Object<String, any>} object1 
+ * @param {Object<String, any>} object2 
  * @returns {Boolean}
  */
-
 function sameObject(object1, object2) {
-    let objectEnt1 = Object.entries(object1)
-    let objectEnt2 = Object.entries(object2)
-    if (objectEnt1.length != objectEnt2.length) return false
-    for (const value of objectEnt1) {
-        let obj = objectEnt2.find(a => a[0] === key)
-        if (!obj || !sameValue(value, obj[1])) return false
+    const keys1 = Object.keys(object1);
+    const keys2 = Object.keys(object2);
+    if (keys1.length !== keys2.length) return false;
+    for (let i = 0; i < keys1.length; i++) {
+        const key = keys1[i];
+        if (!Object.prototype.hasOwnProperty.call(object2, key)) return false;
+        if (!sameValue(object1[key], object2[key])) return false;
     }
-    return true
+    return true;
 }
 
 /**
@@ -24,46 +26,42 @@ function sameObject(object1, object2) {
  */
 
 function sameValue(value1, value2) {
-    try {
-        if (value1 === value2) return true;
-        let pro1 = Object.prototype.toString.call(value1)
-        let pro2 = Object.prototype.toString.call(value2)
-        if (pro1 !== pro2) return false
-        switch (pro1) {
-            case "[object String]":
-            case "[object Number]":
-            case "[object Boolean]": {
-                return value1 === value2
-            }
-            case "[object Array]": {
-                return sameArray(value1, value2)
-            }
-            case "[object Date]": {
-                return value1.getTime() === value2.getTime()
-            }
-            case "[object Object]": {
-                return sameObject(value1, value2)
-            }
+    if (value1 === value2) return true;
+    let pro1 = Object.prototype.toString.call(value1);
+    let pro2 = Object.prototype.toString.call(value2);
+    if (pro1 !== pro2) return false;
+    switch (pro1) {
+        case "[object String]":
+        case "[object Number]":
+        case "[object Boolean]": {
+            return value1 === value2;
         }
-        if (value1 instanceof Set && value2 instanceof Set) return sameArray([...value1], [...value2])
-        if (value1 instanceof Set && value2 instanceof Set) return sameArray([...value1.entries()], [...value2.entries()])
-        if (value1 instanceof RegExp && value2 instanceof RegExp) return (value1.source === value2.source) && (value1.flags === value2.flags)
-        if (value1?.prototype !== undefined) return value1?.prototype === value2?.prototype
-        if (value1?.name !== undefined) return value1?.name === value2?.name
-    } catch (e) { }
-    return false
+        case "[object Array]": {
+            return sameArray(value1, value2);
+        }
+        case "[object Date]": {
+            return value1.getTime() === value2.getTime();
+        }
+        case "[object Object]": {
+            return sameObject(value1, value2);
+        }
+    }
+    if (value1 instanceof Set && value2 instanceof Set) return sameArray([...value1], [...value2]);
+    if (value1 instanceof Map && value2 instanceof Map) return sameArray([...value1.entries()], [...value2.entries()]);
+    if (value1 instanceof RegExp && value2 instanceof RegExp) return (value1.source === value2.source) && (value1.flags === value2.flags);
+    return false;
 }
 
 /**
  * Checks if the elements in the two entered arrays are all the same
- * @param {Array} array1 
- * @param {Array} array2 
+ * @param {Array<any>} array1 
+ * @param {Array<any>} array2 
  * @returns {Boolean}
  */
 
 function sameArray(array1, array2) {
     let length = array1.length;
-    if (length != array2.length) return false
+    if (length != array2.length) return false;
     for (let index = 0; index < length; ++index) {
         if (!sameValue(array1[index], array2[index])) return false;
     }
@@ -74,10 +72,14 @@ class StrongSet extends Set {
 
     /**
      * You set whether to create the Set function with any value while it is being created
-     * @param {StrongSet|Set|Array} props 
+     * @param {StrongSet|Set<any>|Array<any>|null} props 
      */
     constructor(props) {
-        super(props)
+        if (props instanceof StrongSet || props instanceof Set || Array.isArray(props)) {
+            super(props);
+        } else {
+            super();
+        }
     }
 
 
@@ -86,7 +88,7 @@ class StrongSet extends Set {
      * Default sort function to use when sorting objects in an array
      * @param {any} firstValue - First object to sort
      * @param {any} secondValue - Second object to sort
-     * @returns {Boolean}
+     * @returns {Number}
      */
 
     static defaultSort(firstValue, secondValue) {
@@ -120,7 +122,7 @@ class StrongSet extends Set {
     /**
      * Appends a new element with a specified value to the end of the Set. Identical in behavior to {@link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Set/add Set.add()}
      * @param {any} value - Data to be added to the Set function
-     * @returns {StrongSet}
+     * @returns {this}
      */
 
     add(value) {
@@ -133,7 +135,7 @@ class StrongSet extends Set {
     /**
      * Checks if the value you entered in the Set function exists. Identical in behavior to {@link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Set/has Set.has()}
      * @param {any} value - Data to check
-     * @param {Boolean}
+     * @returns {Boolean}
      */
 
     has(value) {
@@ -171,7 +173,7 @@ class StrongSet extends Set {
 
     /**
      * It deletes all the data inside the Set function and recreates the function by writing the data you entered into the Set function
-     * @param {Set|StrongSet|Array<any>} values - Data to be written into when recreating the Set function
+     * @param {...any} values - Data to be written into when recreating the Set function
      * @returns {StrongSet}
      * @example
      * 
@@ -390,7 +392,7 @@ class StrongSet extends Set {
 
     /**
      * Searches for the value of a single item where the given function returns a truthy value. Identical in behavior to {@link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/find Array.find()}
-     * @param {( value: any, index: Number, this: StrongSet ) => Boolean} fn - The function to test with (should return boolean)
+     * @param {( this: StrongSet, value: any, index: Number ) => Boolean} fn - The function to test with (should return boolean)
      * @param {any} thisArg - Value to use as `this` when executing function
      * @returns {any}
      */
@@ -401,7 +403,7 @@ class StrongSet extends Set {
         const keys = [...this.keys()];
         for (let i = 0; i < this.size; i++) {
             const value = keys[i];
-            if (fn(value, i, this)) return value;
+            if (fn.call(this, value, i)) return value;
         }
         return undefined;
     }
@@ -410,7 +412,7 @@ class StrongSet extends Set {
 
     /**
      * Removes items that satisfy the provided filter function
-     * @param {( value: any, index: Number, this: StrongSet ) => Boolean} fn - Function used to test (should return a boolean)
+     * @param {( this: StrongSet, value: any, index: Number ) => Boolean} fn - Function used to test (should return a boolean)
      * @param {any} thisArg - Value to use as `this` when executing function 
      * @returns {Number} The number of removed entries
      */
@@ -422,7 +424,7 @@ class StrongSet extends Set {
             keys = [...this.keys()];
         for (let i = 0; i < this.size; i++) {
             const value = keys[i];
-            if (fn(value, i, this)) this.delete(value);
+            if (fn.call(this, value, i)) this.delete(value);
         }
         return previousSize - this.size;
     }
@@ -431,7 +433,7 @@ class StrongSet extends Set {
 
     /**
      * Searches for the value of multiple elements for which the given function returns a true value and returns them in the Set function, not an array. Identical in behavior to {@link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/filter Array.filter()}
-     * @param {( value: any, index: Number, this: StrongSet ) => Boolean} fn - The function to test with (should return boolean)
+     * @param {( this: StrongSet, value: any, index: Number ) => Boolean} fn - The function to test with (should return boolean)
      * @param {any} thisArg - Value to use as `this` when executing function
      * @returns {StrongSet}
      */
@@ -439,11 +441,11 @@ class StrongSet extends Set {
     filter(fn, thisArg) {
         if (typeof fn !== "function") throw new TypeError(`The ${fn} value is not a function. Please enter a valid function expression`);
         if (thisArg !== undefined) fn = fn.bind(thisArg);
-        const results = new this.constructor[Symbol.species](),
+        const results = new StrongSet(null),
             keys = [...this.keys()];
         for (let i = 0; i < this.size; i++) {
             const value = keys[i];
-            if (fn(value, i, this)) results.add(value);
+            if (fn.call(this, value, i)) results.add(value);
         }
         return results;
     }
@@ -451,22 +453,22 @@ class StrongSet extends Set {
 
     /**
      * Partitions the StrongSet into two Sets where the first StrongSet contains the items that passed and the second contains the items that failed
-     * @param {( value: any, index: Number, this: StrongSet ) => Boolean} fn - Function used to test (should return a boolean)
+     * @param {( this: StrongSet, value: any, index: Number ) => Boolean} fn - Function used to test (should return a boolean)
      * @param {any} thisArg - Value to use as `this` when executing function
-     * @returns {Array<StrongSet,StrongSet>}
+     * @returns {Array<StrongSet>}
      */
 
     partition(fn, thisArg) {
         if (typeof fn !== "function") throw new TypeError(`The ${fn} value is not a function. Please enter a valid function expression`);
         if (thisArg !== undefined) fn = fn.bind(thisArg);
         const results = [
-            new this.constructor[Symbol.species](),
-            new this.constructor[Symbol.species]()
+            new StrongSet(null),
+            new StrongSet(null)
         ],
             keys = [...this.keys()];
         for (let i = 0; i < this.size; i++) {
             const value = keys[i];
-            if (fn(value, i, this)) {
+            if (fn.call(this, value, i)) {
                 results[0].add(value);
             } else {
                 results[1].add(value);
@@ -479,21 +481,21 @@ class StrongSet extends Set {
 
     /**
      * Sets each item into a StrongSet, then joins the results into a single StrongSet. Identical in behavior to {@link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/flatMap Array.flatMap()}
-     * @param {( value: any, index: Number, this: StrongSet ) => any} fn - Function that produces a new StrongSet
+     * @param {( this: StrongSet, value: any, index: Number ) => any} fn - Function that produces a new StrongSet
      * @param {any} thisArg - Value to use as `this` when executing function
      * @returns {StrongSet}
      */
 
     flatMap(fn, thisArg) {
         const Sets = this.map(fn, thisArg);
-        return new this.constructor[Symbol.species]().concat(...Sets);
+        return new StrongSet(null).concat(...Sets);
     }
 
 
 
     /**
      * Sets each item to another value into an array. Identical in behavior to {@link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/map Array.map()}
-     * @param {( value: any, index: Number, this: StrongSet ) => any} fn - Function that produces an element of the new array, taking three arguments
+     * @param {( this: StrongSet, value: any, index: Number ) => any} fn - Function that produces an element of the new array, taking three arguments
      * @param {any} thisArg - Value to use as `this` when executing function 
      * @returns {Array<any>}
      */
@@ -503,7 +505,7 @@ class StrongSet extends Set {
         if (thisArg !== undefined) fn = fn.bind(thisArg);
         const iter = this.keys();
         return Array.from({ length: this.size }, (_, i) => {
-            return fn(iter.next().value, i, this);
+            return fn.call(this, iter.next().value, i);
         });
     }
 
@@ -511,7 +513,7 @@ class StrongSet extends Set {
 
     /**
      * Checks if there exists an item that passes a test. Identical in behavior to {@link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/some Array.some()}
-     * @param {( value: any, index: Number, this: StrongSet ) => Boolean} fn - Function used to test (should return a boolean)
+     * @param {( this: StrongSet, value: any, index: Number ) => Boolean} fn - Function used to test (should return a boolean)
      * @param {any} thisArg - Value to use as `this` when executing function
      * @returns {Boolean}
      */
@@ -521,7 +523,7 @@ class StrongSet extends Set {
         if (thisArg !== undefined) fn = fn.bind(thisArg);
         const keys = [...this.keys()];
         for (let i = 0; i < this.size; i++) {
-            if (fn(keys[i], i, this)) return true;
+            if (fn.call(this, keys[i], i)) return true;
         }
         return false;
     }
@@ -530,7 +532,7 @@ class StrongSet extends Set {
 
     /**
      * Checks if all items passes a test. Identical in behavior to {@link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/every Array.every()}
-     * @param {( value: any, index: Number, this: StrongSet ) => Boolean} fn - Function used to test (should return a boolean)
+     * @param {( this: StrongSet, value: any, index: Number ) => Boolean} fn - Function used to test (should return a boolean)
      * @param {any} thisArg - Value to use as `this` when executing function
      * @returns {Boolean}
      */
@@ -540,7 +542,7 @@ class StrongSet extends Set {
         if (thisArg !== undefined) fn = fn.bind(thisArg);
         const keys = [...this.keys()];
         for (let i = 0; i < this.size; i++) {
-            if (!fn(keys[i], i, this)) return false;
+            if (!fn.call(this, keys[i], i)) return false;
         }
         return true;
     }
@@ -549,7 +551,7 @@ class StrongSet extends Set {
 
     /**
      * Applies a function to produce a single value. Identical in behavior to {@link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/reduce Array.reduce()}
-     * @param {( initialValue: any, value: any, this: StrongSet ) => any} fn - Function used to reduce, taking four arguments; `accumulator`, `currentValue` and `StrongSet`
+     * @param {( this: StrongSet, initialValue: any, value: any ) => any} fn - Function used to reduce, taking four arguments; `accumulator`, `currentValue` and `StrongSet`
      * @param {any} initialValue - Starting value for the accumulator
      * @returns {any}
      */
@@ -559,7 +561,7 @@ class StrongSet extends Set {
         let accumulator;
         if (initialValue !== undefined) {
             accumulator = initialValue;
-            for (const value of this) accumulator = fn(accumulator, value, this);
+            for (const value of this) accumulator = fn.call(this, accumulator, value);
             return accumulator;
         }
         let first = true;
@@ -569,7 +571,7 @@ class StrongSet extends Set {
                 first = false;
                 continue;
             }
-            accumulator = fn(accumulator, value, this);
+            accumulator = fn.call(this, accumulator, value);
         }
         if (first) throw new TypeError("Reduce of empty Set with no initial value");
         return accumulator;
@@ -579,7 +581,7 @@ class StrongSet extends Set {
 
     /**
      * Identical to {@link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Set/forEach Set.forEach()} but returns the StrongSet instead of undefined
-     * @param {( value: any, value2: any, this: StrongSet ) => any} fn - Function to execute for each element
+     * @param {( this: StrongSet, value: any, value2: any ) => any} fn - Function to execute for each element
      * @param {any} thisArg - Value to use as `this` when executing function
      * @returns {StrongSet}
      */
@@ -602,7 +604,7 @@ class StrongSet extends Set {
     tap(fn, thisArg) {
         if (typeof fn !== "function") throw new TypeError(`The ${fn} value is not a function. Please enter a valid function expression`);
         if (thisArg !== undefined) fn = fn.bind(thisArg);
-        fn(this);
+        fn.call(this);
         return this;
     }
 
@@ -614,14 +616,14 @@ class StrongSet extends Set {
      */
 
     clone() {
-        return new this.constructor[Symbol.species](this);
+        return new StrongSet(this);
     }
 
 
 
     /**
      * Combines this StrongSet with others into a new StrongSet. None of the source Sets are modified
-     * @param  {...(StrongSet|Set)} Sets - Sets to merge
+     * @param  {...(StrongSet|Set<any>)} Sets - Sets to merge
      * @returns {StrongSet}
      */
 
@@ -638,7 +640,7 @@ class StrongSet extends Set {
 
     /**
      * Checks if this StrongSet shares identical items with another
-     * @param {StrongSet|Set} Set 
+     * @param {StrongSet|Set<any>} Set 
      * @returns {Boolean}
      */
 
@@ -656,7 +658,7 @@ class StrongSet extends Set {
 
     /**
      * The sort method sorts the items of a StrongSet in place and returns it
-     * @param {( value_1: any, value_2 ) => Boolean} compareFunction - Specifies a function that defines the sort order. If omitted, the StrongSet is sorted according to each character's Unicode code point value, according to the string conversion of each element
+     * @param {( value_1: any, value_2: any ) => Number} compareFunction - Specifies a function that defines the sort order. If omitted, the StrongSet is sorted according to each character's Unicode code point value, according to the string conversion of each element
      * @returns {StrongSet}
      */
 
@@ -674,12 +676,12 @@ class StrongSet extends Set {
 
     /**
      * The intersect method returns a new structure containing items where the keys and values are present in both original structures
-     * @param {StrongSet|Set} other - The other StrongSet to filter against
+     * @param {StrongSet|Set<any>} other - The other StrongSet to filter against
      * @returns {StrongSet}
      */
 
     intersect(other) {
-        const Set = new this.constructor[Symbol.species]();
+        const Set = new StrongSet(null);
         for (const value of other) {
             if (this.has(value)) Set.add(value);
         }
@@ -690,17 +692,17 @@ class StrongSet extends Set {
 
     /**
      * The difference method returns a new structure containing items where the key is present in one of the original structures but not the other
-     * @param {StrongSet|Set} other - The other StrongSet to filter against
+     * @param {StrongSet|Set<any>} other - The other StrongSet to filter against
      * @returns 
      */
 
     difference(other) {
-        const Set = new this.constructor[Symbol.species]();
+        const Set = new StrongSet(null);
         for (const value of other) {
-            if (!this.has(key)) Set.add(value);
+            if (!this.has(value)) Set.add(value);
         }
         for (const value of this) {
-            if (!other.has(key)) Set.add(value);
+            if (!other.has(value)) Set.add(value);
         }
         return Set;
     }
@@ -709,12 +711,12 @@ class StrongSet extends Set {
 
     /**
      * The sorted method sorts the elements of a StrongSet and returns it. This does not change the main object
-     * @param {( value_1: any, value_2 ) => Boolean} compareFunction - Specifies a function that defines the sort order. If omitted, the StrongSet is sorted according to each character's Unicode code point value, according to the string conversion of each element
+     * @param {( value_1: any, value_2: any ) => Number} compareFunction - Specifies a function that defines the sort order. If omitted, the StrongSet is sorted according to each character's Unicode code point value, according to the string conversion of each element
      * @returns {StrongSet}
      */
 
     sorted(compareFunction = StrongSet.defaultSort) {
-        return new this.constructor[Symbol.species](this).sort((av, bv) => compareFunction(av, bv));
+        return new StrongSet(this).sort((av, bv) => compareFunction(av, bv));
     }
 
 
